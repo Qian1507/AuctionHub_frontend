@@ -8,7 +8,7 @@ export const getToken = (): string | null => {
 };
 
 
-export const clearToken = () => {
+export const removeToken = () => {
   localStorage.removeItem("accessToken");
 };
 
