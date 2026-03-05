@@ -18,6 +18,7 @@ import MyAuctions from "./pages/MyAuctions";
 import Navbar from "./components/Navbar";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuctionEdit from "./pages/AuctionEdit";
+import UpdatePassword from "./pages/UpdatePassword";
 import './App.css';
 
 type RequireAuthProps = {
@@ -37,10 +38,13 @@ function App() {
         <Navbar />
         <Routes>
 
+          //User
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/account/password" element={<UpdatePassword />} />
 
+          //Auction
           <Route path="/auctions" element={<AuctionList />} />
           <Route path="/auctions/:id" element={<AuctionDetail />} />
           <Route path="/auctions/edit/:id" element={<AuctionEdit />} />
@@ -70,7 +74,16 @@ function App() {
               </RequireAuth>
             }
           />
+           <Route
+            path="/users/update"
+            element={
+              <RequireAuth>
+                <UpdatePassword />
+              </RequireAuth>
+            }
+            />
 
+            
            <Route
             path="/admin"
             element={

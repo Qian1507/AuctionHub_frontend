@@ -60,6 +60,14 @@ const Navbar: React.FC = () => {
                 >
                   Create
                 </NavLink>
+                <NavLink
+                    to="/users/update"
+                    className={({ isActive }) =>
+                        `${linkBase} ${isActive ? active : inactive}`
+                    }
+                    >
+                    Update password
+                 </NavLink>
                 </>
             )}
 
