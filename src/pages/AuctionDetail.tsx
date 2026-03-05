@@ -1,22 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
 import { getAuctionById, placeBid } from "../services/auctionService";
 import type { AuctionDetailDto } from "../types/Types";
 import { getErrorMessage } from "../utils/errorUtils";
+import { useAuth } from "../contexts/useAuth";
+import { Link, useParams } from "react-router-dom";
+import { cancelLastBid } from "../services/auctionService";
 
-
-
-/* type ApiErrorResponse = {
-  message?: string;
-};
-
-type AxiosLikeError = {
-  response?: {
-    data?: ApiErrorResponse | string;
-  };
-}; */
 
 const AuctionDetail: React.FC = () => {
+    //Hooks
+  const {user}=useAuth();
   const { id } = useParams<{ id: string }>();
 
   const [auction, setAuction] = useState<AuctionDetailDto | null>(null);
@@ -26,16 +19,7 @@ const AuctionDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
  
-  /* const getErrorMessage = (err: unknown, defaultMsg: string): string => {
-    if (typeof err === "object" && err !== null && "response" in err) {
-      const data = (err as AxiosErrorLike).response?.data;
-      if (typeof data === "string") return data;
-      if ((data as ApiErrorResponse)?.message) return (data as ApiErrorResponse).message!;
-    }
-    return defaultMsg;
-  };
- */
-  
+
   const loadAuction = useCallback(async () => {
     if (!id) return;
     try {
@@ -62,12 +46,9 @@ const AuctionDetail: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
-      await placeBid(Number(id), {
-  auctionId: Number(id),
-  amount: bidAmount,
-});
-
-      
+      await placeBid(Number(id), bidAmount); 
+    
+     alert("Bid placed!");  
       await loadAuction();
     } catch (err: unknown) {
       setError(getErrorMessage(err, "Bid too low!"));
@@ -76,18 +57,42 @@ const AuctionDetail: React.FC = () => {
     }
   }, [id, bidAmount, auction, loadAuction]);
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  
+  const handleCancelLastBid = useCallback(async () => {
+    if (!id) return;
 
-  if (error)
-    return (
-      <div className="text-center mt-10 text-red-600 font-bold">
-        {error}
-      </div>
+    try {
+      setSaving(true);
+      setError(null);
+      const ok = await cancelLastBid(Number(id));
+      if (!ok) {
+        setError("Cannot cancel this bid.");
+        return;
+      }
+      await loadAuction();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Cannot cancel this bid."));
+    } finally {
+      setSaving(false);
+    }
+  }, [id, loadAuction]);
+
+    if (loading) return <div className="text-center mt-10">Loading...</div>;
+
+    if (error)
+        return (
+            <div className="text-center mt-10 text-red-600 font-bold">
+                {error}
+            </div>
     );
-
+  
+  
   if (!auction) return null; 
 
   const displayPrice = auction.currentHighestBid ?? auction.startingPrice;
+
+  const isOwner =
+    user && auction && auction.createdByUserId === user.id;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -97,11 +102,20 @@ const AuctionDetail: React.FC = () => {
       <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 flex justify-between items-center">
         <div>
           <p className="text-sm text-blue-600">Current Price</p>
-          <p className="text-3xl font-bold">${displayPrice}</p>
+          <p className="text-3xl font-bold">kr {displayPrice}</p>
         </div>
 
         {auction.isOpen ? (
-          <div className="flex gap-2">
+            isOwner ? (
+            
+            <Link
+              to={`/auctions/edit/${auction.id}`}
+              className="bg-yellow-500 text-white px-6 py-2 rounded font-semibold"
+            >
+              Edit
+            </Link>
+          ) : (
+          <div className="flex gap-2 items-center">
             <input
               type="number"
               className="border p-2 rounded w-24"
@@ -118,7 +132,15 @@ const AuctionDetail: React.FC = () => {
             >
               {saving ? "Placing bid..." : "Place Bid"}
             </button>
+            <button
+              onClick={handleCancelLastBid}
+              className="px-4 py-2 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-60"
+              disabled={saving}
+            >
+              Cancel last bid
+            </button>
           </div>
+          )
         ) : (
           <div className="text-red-600 font-bold">Auction Closed</div>
         )}
@@ -128,7 +150,7 @@ const AuctionDetail: React.FC = () => {
         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
           Winner:{" "}
           <span className="font-bold">{auction.winningBid.userName}</span>{" "}
-          with ${auction.winningBid.amount}
+          with kr{auction.winningBid.amount}
         </div>
       )}
     </div>

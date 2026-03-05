@@ -1,20 +1,22 @@
+// pages/AuctionEdit.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import type { AuctionFormData } from "../components/auction/AuctionForm";
+import AuctionForm from "../components/auction/AuctionForm";
 import auctionService from "../services/auctionService";
-import type { AuctionUpdateDto } from "../types/Types";
 import { getErrorMessage } from "../utils/errorUtils";
 
 const AuctionEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<AuctionUpdateDto>({
+  const [initialData, setInitialData] = useState<AuctionFormData>({
     title: "",
     description: "",
-    startingPrice: 0,
+    startingPrice: "",
     endDate: "",
   });
-
+  const [hasBids, setHasBids] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,20 +27,21 @@ const AuctionEdit: React.FC = () => {
     const loadAuction = async () => {
       try {
         setLoading(true);
-        const auction = await auctionService.getAuctionById(
-          Number(id)
-        );
+        setError(null);
+        const auction = await auctionService.getAuctionById(Number(id));
 
-        setForm({
+        setInitialData({
           title: auction.title,
           description: auction.description,
-          startingPrice: auction.startingPrice,
-           endDate: auction.endDate
-    ? new Date(auction.endDate).toISOString().slice(0, 16)
-    : "",
+          startingPrice: String(auction.startingPrice),
+          endDate: auction.endDate
+            ? new Date(auction.endDate).toISOString().slice(0, 16)
+            : "",
         });
+
+        setHasBids(auction.hasBids);
       } catch (err: unknown) {
-       setError(getErrorMessage(err, "Failed to load auction"));
+        setError(getErrorMessage(err, "Failed to load auction"));
       } finally {
         setLoading(false);
       }
@@ -47,97 +50,53 @@ const AuctionEdit: React.FC = () => {
     loadAuction();
   }, [id]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]:
-        name === "startingPrice" ? Number(value) || 0 : value,
+  const handleSubmit = async (form: AuctionFormData) => {
+    if (!id) return;
 
-    }));
+    try {
+      setSaving(true);
+      setError(null);
+
+      await auctionService.updateAuction(Number(id), {
+        title: form.title,
+        description: form.description,
+        startingPrice: Number(form.startingPrice) || 0,
+        endDate: form.endDate
+          ? new Date(form.endDate).toISOString()
+          : "",
+      });
+
+      navigate(`/auctions/${id}`);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to update auction"));
+    } finally {
+      setSaving(false);
+    }
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!id) return;
-
-  try {
-    setSaving(true);
-    setError(null);
-
-    const payload: AuctionUpdateDto = {
-      ...form,
-      endDate: form.endDate
-        ? new Date(form.endDate).toISOString()
-        : "",
-    };
-
-    await auctionService.updateAuction(Number(id), payload);
-    navigate(`/auctions/${id}`);
-  } catch (err: unknown) {
-    setError(getErrorMessage(err, "Failed to update auction"));
-  } finally {
-    setSaving(false);
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 text-center">
+        Loading...
+      </div>
+    );
   }
-};
-
-if (loading) return <p>Loading...</p>;
-
 
   return (
-    <div className="page">
-      <h1>Edit auction</h1>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Edit auction</h1>
 
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <div className="mb-4 text-red-600 font-semibold">{error}</div>
+      )}
 
-      <form onSubmit={handleSubmit} className="form">
-        <label>
-          Title
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          Description
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-          />
-        </label>
-
-        <label>
-          Starting price
-          <input
-            type="number"
-            name="startingPrice"
-            value={form.startingPrice}
-            onChange={handleChange}
-            min={0}
-          />
-        </label>
-
-        <label>
-          End date
-          <input
-            type="datetime-local"
-            name="endDate"
-            value={form.endDate}
-            onChange={handleChange}
-          />
-        </label>
-
-        <button type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save changes"}
-        </button>
-      </form>
+      <AuctionForm
+        initialData={initialData}
+        onSubmit={handleSubmit}
+        submitLabel="Save changes"
+        disablePrice={hasBids}
+        loading={saving}
+      />
     </div>
   );
 };

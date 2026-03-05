@@ -1,81 +1,62 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createAuction } from '../services/auctionService';
-import type { AuctionCreateDto } from "../types/Types";
-
-
+// pages/AuctionCreate.tsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { AuctionFormData } from "../components/auction/AuctionForm";
+import AuctionForm from "../components/auction/AuctionForm";
+import auctionService from "../services/auctionService";
+import { getErrorMessage } from "../utils/errorUtils";
 
 const AuctionCreate: React.FC = () => {
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-   const [form, setForm] = useState<AuctionCreateDto>({
+  const initialData: AuctionFormData = {
     title: "",
     description: "",
-    startingPrice: 0,
-    startDate: "",
+    startingPrice: "",
     endDate: "",
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const success = await createAuction(form);
-    if (success) navigate('/auctions');
-    else alert("Check your dates. End date must be after Start date.");
   };
 
+  const handleSubmit = async (form: AuctionFormData) => {
+  try {
+    setSaving(true);
+    setError(null);
+
+    await auctionService.createAuction({
+      title: form.title,
+      description: form.description,
+      startingPrice: Number(form.startingPrice) || 0,
+      startDate: new Date().toISOString(), 
+      endDate: form.endDate
+        ? new Date(form.endDate).toISOString()
+        : new Date().toISOString(),
+    });
+
+    navigate("/my-auctions");
+  } catch (err: unknown) {
+    setError(getErrorMessage(err, "Failed to create auction"));
+  } finally {
+    setSaving(false);
+  }
+};
+
+
   return (
-     <form
-      onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-6 space-y-4 bg-white rounded-xl shadow"
-    >
-      <h2 className="text-2xl font-bold">Create New Auction</h2>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Create auction</h1>
 
-      <input
-        className="w-full border p-2 rounded"
-        placeholder="Title"
-        value={form.title}
-        onChange={(e) => setForm({ ...form, title: e.target.value })}
+      {error && (
+        <div className="mb-4 text-red-600 font-semibold">{error}</div>
+      )}
+
+      <AuctionForm
+        initialData={initialData}
+        onSubmit={handleSubmit}
+        submitLabel="Create auction"
+        loading={saving}
       />
-
-      <textarea
-        className="w-full border p-2 rounded"
-        placeholder="Description"
-        value={form.description}
-        onChange={(e) => setForm({ ...form, description: e.target.value })}
-      />
-
-      <input
-        type="number"
-        className="w-full border p-2 rounded"
-        placeholder="Starting Price"
-        value={form.startingPrice}
-        onChange={(e) =>
-          setForm({ ...form, startingPrice: Number(e.target.value) })
-        }
-      />
-
-      <label className="block text-sm">Start Date</label>
-      <input
-        type="datetime-local"
-        className="w-full border p-2 rounded"
-        value={form.startDate}
-        onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-      />
-
-      <label className="block text-sm">End Date</label>
-      <input
-        type="datetime-local"
-        className="w-full border p-2 rounded"
-        value={form.endDate}
-        onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-      />
-
-      <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-        Create Auction
-      </button>
-    </form>
+    </div>
   );
 };
 

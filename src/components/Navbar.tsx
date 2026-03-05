@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 
 const Navbar: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
               Auctions
             </NavLink>
 
-            {isAuthenticated && (
+            {isAuthenticated &&  user?.role === "User" &&(
               <>
                 <NavLink
                   to="/my-auctions"
@@ -60,8 +60,19 @@ const Navbar: React.FC = () => {
                 >
                   Create
                 </NavLink>
-              </>
+                </>
             )}
+
+            {isAuthenticated && user?.role === "Admin" && (
+              <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                        `${linkBase} ${isActive ? active : inactive}`
+                        }
+                    >
+                     Admin
+                    </NavLink>
+                         )}
           </div>
 
           

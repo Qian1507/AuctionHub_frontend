@@ -55,9 +55,9 @@ const AuctionCard: React.FC<Props> = ({ auction }) => {
               Current Bid
             </p>
             <p className="text-xl font-extrabold text-blue-600">
-              {displayPrice.toLocaleString("en-US", {
+              {displayPrice.toLocaleString("sv-SE", {
                 style: "currency",
-                currency: "USD",
+                currency: "SEK",
                 minimumFractionDigits: 0,
               })}
             </p>

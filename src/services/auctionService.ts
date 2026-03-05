@@ -53,13 +53,16 @@ export const getAuctionById = async (
  */
 export const createAuction = async (
   dto: AuctionCreateDto
-): Promise<boolean> => {
-  const response = await axiosInstance.post<{ message: string }>(
-    "Auction/Create",
-    dto
-  );
-  // { message: "Auction created" }
-  return response.status === 200;
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await axiosInstance.post<{ message: string }>(
+      "Auction/Create",
+      dto
+    );
+    return { success: response.status === 200, message: response.data.message };
+  } catch {
+    return { success: false };
+  }
 };
 
 /**
@@ -81,8 +84,12 @@ export const updateAuction = async (
  */
 export const placeBid = async (
   auctionId: number,
-  dto: BidCreateDto
+  amount:number
 ): Promise<boolean> => {
+    const dto:BidCreateDto ={
+        amount:amount,
+        auctionId:auctionId
+    };
   const response = await axiosInstance.post<{ message: string }>(
     `Auction/PlaceBid/${auctionId}`,
     dto

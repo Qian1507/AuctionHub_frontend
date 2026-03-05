@@ -7,7 +7,7 @@ export interface UserLoginDto {
 }
 
 export interface UserRegisterDto {
-    userName: string;
+    name: string;
     email: string;
     password: string;
 }
@@ -19,7 +19,7 @@ export interface AuthResponseDto {
 
 export interface UserResponseDto {
     id: number;
-    userName: string;
+    name: string;
     email: string;
     role: "Admin" | "User";
     isActive:boolean;
@@ -42,8 +42,7 @@ export interface Auction {
   endDate: string;         // DateTime -> ISO string
   createdByUserId: number;
   isDisabled: boolean;
-  isOpen: boolean;         // 后端如果在 DTO 里返回这个，前端就可以直接用
-  // 可选：如果 API 会把关联对象也展开，就加下面这些
+  isOpen: boolean;       
   createdByUserName?: string;
   bids?: Bid[];
 }
@@ -77,6 +76,7 @@ export interface AuctionDetailDto {
     currentHighestBid: number;
     winningBid: BidDto | null;
     bids: BidDto[];
+    hasBids: boolean;
 }
 
 export interface AuctionCreateDto {
@@ -106,7 +106,11 @@ export interface Bid {
   auctionId: number;
   userId: number;
   auctionTitle?: string;
-  userName?: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
 export interface BidDto {

@@ -1,9 +1,10 @@
 import { createContext } from 'react';
-import type { UserResponseDto } from '../types/Types';
+import type { UserResponseDto,UserLoginDto } from '../types/Types';
 
 export interface AuthContextType {
   user: UserResponseDto | null;
   setUser: (user: UserResponseDto | null) => void;
+  login: (credentials: UserLoginDto) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;

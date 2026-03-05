@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import AuthProvider from "./contexts/AuthProvider";
 import { useAuth } from "./contexts/useAuth";
+import RequireAdmin from "./components/RequireAdmin";
 // Pages
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -15,6 +16,8 @@ import AuctionDetail from "./pages/AuctionDetail";
 import AuctionCreate from "./pages/AuctionCreate";
 import MyAuctions from "./pages/MyAuctions";
 import Navbar from "./components/Navbar";
+import AdminDashboard from "./pages/AdminDashboard";
+import AuctionEdit from "./pages/AuctionEdit";
 import './App.css';
 
 type RequireAuthProps = {
@@ -40,6 +43,7 @@ function App() {
 
           <Route path="/auctions" element={<AuctionList />} />
           <Route path="/auctions/:id" element={<AuctionDetail />} />
+          <Route path="/auctions/edit/:id" element={<AuctionEdit />} />
 
           <Route
             path="/auctions/create"
@@ -58,6 +62,23 @@ function App() {
             }
           />
 
+          <Route
+            path="/auctions/edit/:id"
+            element={
+              <RequireAuth>
+                <AuctionEdit />
+              </RequireAuth>
+            }
+          />
+
+           <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            }
+          />
    
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

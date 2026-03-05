@@ -3,15 +3,17 @@ import { useNavigate, Link } from "react-router-dom";
 import { register } from "../services/authService";
 import type { UserRegisterDto } from "../types/Types";
 import { getErrorMessage } from "../utils/errorUtils";
+import { useAuth } from "../contexts/useAuth";
 
 
 
 
 const Register: React.FC = () => {
+  const {login}=useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<UserRegisterDto>({
-    userName: "",
+    name: "",
     email: "",
     password: "",
   });
@@ -31,8 +33,13 @@ const Register: React.FC = () => {
 
   try {
     const res = await register(formData);
-    alert(res.message || "Registration successful! Please login.");
-    navigate("/login");
+    alert(res.message || "Registration successful!");
+    await login({
+        email: formData.email,
+      password: formData.password,
+    });
+
+    navigate("/my-auctions", { replace: true });
   } catch (err: unknown) {
     const message = getErrorMessage(
       err,
@@ -69,12 +76,12 @@ const Register: React.FC = () => {
                 Username
               </label>
               <input
-                name="userName"
+                name="name"
                 type="text"
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 placeholder="johndoe"
-                value={formData.userName}
+                value={formData.name}
                 onChange={handleChange}
               />
             </div>

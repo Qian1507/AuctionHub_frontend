@@ -31,8 +31,16 @@ const MyAuctions: React.FC = () => {
     fetchMyAuctions();
   }, [user]);
 
-  if (isLoading) return <div className="text-center mt-10">Loading your listings...</div>;
-
+  if (isLoading) 
+    return <div className="text-center mt-10">Loading your listings...</div>;
+ if (error)
+  return (
+    <div className="container mx-auto p-6">
+      <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100">
+        {error}
+      </div>
+    </div>
+  );
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
@@ -41,23 +49,19 @@ const MyAuctions: React.FC = () => {
           <p className="text-gray-500">Manage the items you are currently selling</p>
         </div>
         <Link 
-          to="/create-auction" 
+          to="/auctions/create" 
           className="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
         >
           + Create New
         </Link>
       </div>
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100">
-          {error}
-        </div>
-      )}
-
       {auctions.length === 0 ? (
         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
           <p className="text-gray-500 text-lg">You haven't created any auctions yet.</p>
-          <Link to="/create-auction" className="text-blue-600 font-medium hover:underline mt-2 inline-block">
+          <Link 
+          to="/auctions/create"
+           className="text-blue-600 font-medium hover:underline mt-2 inline-block">
             Start selling now
           </Link>
         </div>
@@ -66,7 +70,7 @@ const MyAuctions: React.FC = () => {
           {auctions.map((auction) => (
             <div key={auction.id} className="relative">
               <AuctionCard auction={auction} />
-              {/* Optional: Add an "Edit" badge or status indicator specifically for own auctions */}
+             
               <div className="absolute top-2 right-2">
                 {auction.isDisabled ? (
                   <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-bold">Disabled</span>
