@@ -17,7 +17,7 @@ const MyAuctions: React.FC = () => {
       
       try {
         setIsLoading(true);
-        // This matches your backend Task<IEnumerable<AuctionListDto>> GetAuctionsByUserIdAsync
+       
         const data = await getMyAuctions();
         setAuctions(data);
       } catch {

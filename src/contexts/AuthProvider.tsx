@@ -30,7 +30,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         setUser,
         logout,
-        login,              // 把 login 暴露出去
+        login,              
         isAuthenticated: !!user,
         loading,
       }}

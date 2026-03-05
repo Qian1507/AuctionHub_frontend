@@ -37,9 +37,9 @@ export interface Auction {
   id: number;
   title: string;
   description: string;
-  startingPrice: number;   // C# decimal -> number
-  startDate: string;       // DateTime -> ISO string
-  endDate: string;         // DateTime -> ISO string
+  startingPrice: number;   
+  startDate: string;       
+  endDate: string;         
   createdByUserId: number;
   isDisabled: boolean;
   isOpen: boolean;       
