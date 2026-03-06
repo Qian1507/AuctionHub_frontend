@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { getAuctionById, placeBid } from "../services/auctionService";
+import { getAuctionById, placeBid, cancelLastBid } from "../services/auctionService";
 import type { AuctionDetailDto } from "../types/Types";
 import { getErrorMessage } from "../utils/errorUtils";
 import { useAuth } from "../contexts/useAuth";
 import { Link, useParams } from "react-router-dom";
-import { cancelLastBid } from "../services/auctionService";
-
 
 const AuctionDetail: React.FC = () => {
-    //Hooks
-  const {user}=useAuth();
+  // Hooks
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
 
   const [auction, setAuction] = useState<AuctionDetailDto | null>(null);
@@ -17,8 +15,6 @@ const AuctionDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
- 
 
   const loadAuction = useCallback(async () => {
     if (!id) return;
@@ -39,7 +35,6 @@ const AuctionDetail: React.FC = () => {
     loadAuction();
   }, [loadAuction]);
 
-
   const handleBid = useCallback(async () => {
     if (!id || !auction) return;
 
@@ -48,7 +43,7 @@ const AuctionDetail: React.FC = () => {
       setError(null);
       await placeBid(Number(id), bidAmount); 
     
-     alert("Bid placed!");  
+      alert("Bid placed!");  
       await loadAuction();
     } catch (err: unknown) {
       setError(getErrorMessage(err, "Failed to place bid"));
@@ -57,7 +52,6 @@ const AuctionDetail: React.FC = () => {
     }
   }, [id, bidAmount, auction, loadAuction]);
 
-  
   const handleCancelLastBid = useCallback(async () => {
     if (!id) return;
 
@@ -77,22 +71,20 @@ const AuctionDetail: React.FC = () => {
     }
   }, [id, loadAuction]);
 
-    if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-    if (error)
-        return (
-            <div className="text-center mt-10 text-red-600 font-bold">
-                {error}
-            </div>
+  if (error)
+    return (
+      <div className="text-center mt-10 text-red-600 font-bold">
+        {error}
+      </div>
     );
-  
   
   if (!auction) return null; 
 
   const displayPrice = auction.currentHighestBid ?? auction.startingPrice;
 
-  const isOwner =
-    user && auction && auction.createdByUserId === user.id;
+  const isOwner = user && auction && auction.createdByUserId === user.id;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -106,8 +98,21 @@ const AuctionDetail: React.FC = () => {
         </div>
 
         {auction.isOpen ? (
-            isOwner ? (
-            
+          /* 1. Check if user exists. If not, show login prompt */
+          !user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600 font-medium">
+                Please log in to participate in this auction.
+              </span>
+              <Link
+                to="/login"
+                className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Log In / Register
+              </Link>
+            </div>
+          ) : isOwner ? (
+            /* 2. User is logged in and is the owner */
             <Link
               to={`/auctions/edit/${auction.id}`}
               className="bg-yellow-500 text-white px-6 py-2 rounded font-semibold"
@@ -115,31 +120,32 @@ const AuctionDetail: React.FC = () => {
               Edit
             </Link>
           ) : (
-          <div className="flex gap-2 items-center">
-            <input
-              type="number"
-              className="border p-2 rounded w-24"
-              value={bidAmount}
-              onChange={(e) =>
-                setBidAmount(Number(e.target.value) || 0)
-              }
-              min={0}
-            />
-            <button
-              onClick={handleBid}
-              className="bg-blue-600 text-white px-6 py-2 rounded"
-              disabled={saving}
-            >
-              {saving ? "Placing bid..." : "Place Bid"}
-            </button>
-            <button
-              onClick={handleCancelLastBid}
-              className="px-4 py-2 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-60"
-              disabled={saving}
-            >
-              Cancel last bid
-            </button>
-          </div>
+            /* 3. User is logged in but is NOT the owner (normal bidder) */
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                className="border p-2 rounded w-24"
+                value={bidAmount}
+                onChange={(e) =>
+                  setBidAmount(Number(e.target.value) || 0)
+                }
+                min={0}
+              />
+              <button
+                onClick={handleBid}
+                className="bg-blue-600 text-white px-6 py-2 rounded"
+                disabled={saving}
+              >
+                {saving ? "Placing bid..." : "Place Bid"}
+              </button>
+              <button
+                onClick={handleCancelLastBid}
+                className="px-4 py-2 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-60"
+                disabled={saving}
+              >
+                Cancel last bid
+              </button>
+            </div>
           )
         ) : (
           <div className="text-red-600 font-bold">Auction Closed</div>

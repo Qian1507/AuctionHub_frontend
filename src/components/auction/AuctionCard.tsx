@@ -7,21 +7,22 @@ interface Props {
 
 const AuctionCard: React.FC<Props> = ({ auction }) => {
   const isFinished = new Date(auction.endDate) < new Date();
-  const displayPrice =
-    auction.currentHighestBid ?? auction.startingPrice;
+  const displayPrice =auction.currentHighestBid ?? auction.startingPrice;
 
   
-  const placeholderUrl =
-    "https://via.placeholder.com/400x300?text=Auction"; 
+  const imageUrl = `https://picsum.photos/seed/${auction.id}/400/300`;
 
   return (
     <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
-      {/* Image Section */}
-      <div className="relative h-48 overflow-hidden">
+      
+      <div className="relative h-48 overflow-hidden bg-gray-200">
         <img
-          src={placeholderUrl}
+          src={imageUrl}
           alt={auction.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x300?text=No+Image";
+          }}
         />
         <div
           className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold text-white ${
@@ -40,7 +41,7 @@ const AuctionCard: React.FC<Props> = ({ auction }) => {
         </div>
       </div>
 
-      {/* Content Section */}
+     
       <div className="p-4">
         <h3 className="text-lg font-bold text-gray-800 truncate mb-1">
           {auction.title}

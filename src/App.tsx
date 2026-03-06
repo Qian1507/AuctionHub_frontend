@@ -42,15 +42,15 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/account/password" element={<UpdatePassword />} />
+         
 
-          //Auction
+          //Public Auctions
           <Route path="/auctions" element={<AuctionList />} />
           <Route path="/auctions/:id" element={<AuctionDetail />} />
-          <Route path="/auctions/edit/:id" element={<AuctionEdit />} />
-
+          
+         //Auth required
           <Route
-            path="/auctions/create"
+            path="/auctions/create" 
             element={
               <RequireAuth>
                 <AuctionCreate />
@@ -83,7 +83,7 @@ function App() {
             }
             />
 
-            
+            //Admin
            <Route
             path="/admin"
             element={
