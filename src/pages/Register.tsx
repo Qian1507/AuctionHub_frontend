@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { register } from "../services/authService";
-import type { UserRegisterDto } from "../types/Types";
-import { getErrorMessage } from "../utils/errorUtils";
+// 1. Import BOTH register and login from the service API
+import { register, login } from "../services/authService";
+// 2. Import setToken directly
+import { setToken } from "../utils/TokenHandler";
 import { useAuth } from "../contexts/useAuth";
-
-
-
+import type { UserRegisterDto, AuthResponseDto } from "../types/Types";
+import { getErrorMessage } from "../utils/errorUtils";
 
 const Register: React.FC = () => {
-  const {login}=useAuth();
+  // 3. Only extract setUser from useAuth, NOT login
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<UserRegisterDto>({
@@ -27,29 +28,43 @@ const Register: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
-  setIsLoading(true);
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-  try {
-    const res = await register(formData);
-    alert(res.message || "Registration successful!");
-    await login({
+    try {
+      // Step 1: Execute Registration
+      await register(formData);
+
+      // Step 2: Automatically log in using the same service method as Login.tsx
+      const loginResponse: AuthResponseDto = await login({
         email: formData.email,
-      password: formData.password,
-    });
+        password: formData.password,
+      });
 
-    navigate("/my-auctions", { replace: true });
-  } catch (err: unknown) {
-    const message = getErrorMessage(
-      err,
-      "Registration failed. Please try again."
-    );
-    setError(message);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      // Step 3: Save JWT to LocalStorage manually
+      setToken(loginResponse.token);
+
+      // Step 4: Update Global Auth State manually
+      setUser(loginResponse.user);
+
+      // Step 5: Redirect based on role (matching your Login logic)
+      if (loginResponse.user.role === "Admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/auctions", { replace: true });
+      }
+      
+    } catch (err: unknown) {
+      const message = getErrorMessage(
+        err,
+        "Registration failed. Please try again."
+      );
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">

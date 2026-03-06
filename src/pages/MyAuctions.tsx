@@ -13,11 +13,17 @@ const MyAuctions: React.FC = () => {
 
   useEffect(() => {
     const fetchMyAuctions = async () => {
-      if (!user) return;
+    if (user === undefined) return;
+
+      if (!user) {
+      setIsLoading(false);
+      setAuctions([]);
+      return;
+    }
       
       try {
         setIsLoading(true);
-       
+        setError(null);
         const data = await getMyAuctions();
         setAuctions(data);
       } catch {

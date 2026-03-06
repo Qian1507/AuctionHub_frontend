@@ -51,7 +51,7 @@ const AuctionDetail: React.FC = () => {
      alert("Bid placed!");  
       await loadAuction();
     } catch (err: unknown) {
-      setError(getErrorMessage(err, "Bid too low!"));
+      setError(getErrorMessage(err, "Failed to place bid"));
     } finally {
       setSaving(false);
     }
