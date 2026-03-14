@@ -220,7 +220,6 @@ Backend repository:
 https://github.com/Qian1507/AuctionHub_backend
 
 
-
 🌟 Design Highlights
 Clear separation of concerns
 
@@ -249,6 +248,7 @@ getErrorMessage converts Axios errors into user‑friendly strings, so all pages
 JWT‑aware routing
 
 Auth‑only and admin‑only routes are enforced using RequireAuth / RequireAdmin, reading state from AuthContext.
+
 
 📄 License
 MIT License
