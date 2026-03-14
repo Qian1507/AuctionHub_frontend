@@ -12,18 +12,18 @@ It provides a seamless UI for browsing auctions, placing bids, managing your own
 
 ## 🖼️ Project Preview
 
-> (Optional) Add screenshots under a `screenshots/` folder and update the paths below.
+
 
 ### User Authentication
 
 <p align="center">
-  <img src="screenshots/Login.png" width="500" alt="Login Screen">
+  <img src="Login.png" width="500" alt="Login Screen">
 </p>
 
 ### Main Dashboard
 
 <p align="center">
-  <img src="screenshots/acutiond.png" width="900" alt="Main Dashboard">
+  <img src="acutiond.png" width="900" alt="Main Dashboard">
 </p>
 
 ---
@@ -88,7 +88,7 @@ src/
 
 
 
-  ✨ Key Features
+✨ Key Features
 👤 User Experience
 Registration followed by automatic login using the same credentials.
 
@@ -197,8 +197,7 @@ Pages like AuctionDetail, MyAuctions, and UpdatePassword use it in catch blocks 
 1️⃣ Install Dependencies
 bash
 npm install
-# or
-yarn
+
 2️⃣ Configure Environment
 Create a .env file in the project root:
 
@@ -209,8 +208,7 @@ Make sure the backend is running and the URL matches this value.
 3️⃣ Run Development Server
 bash
 npm run dev
-# or
-yarn dev
+
 The app will typically run at:
 
 http://localhost:5173
@@ -221,14 +219,7 @@ This frontend consumes the AuctionHub backend API built with ASP.NET Core.
 Backend repository (example):
 https://github.com/Qian1507/AuctionHub_backend
 
-💡 Tips
-Keep screenshots in a screenshots/ folder at the root of the frontend repo.
 
-Ensure file names match those used in this README (login.png, dashboard.png, etc.).
-
-Use .env (and do not commit secrets) for configuring API URLs and environment‑specific settings.
-
-Protected routes require login; admin‑only pages require a user with the Admin role.
 
 🌟 Design Highlights
 Clear separation of concerns
