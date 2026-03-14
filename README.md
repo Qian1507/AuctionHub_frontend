@@ -23,7 +23,7 @@ It provides a seamless UI for browsing auctions, placing bids, managing your own
 ### Main Dashboard
 
 <p align="center">
-  <img src="acutiond.png" width="900" alt="Main Dashboard">
+  <img src="acution.png" width="900" alt="Main Dashboard">
 </p>
 
 ---
@@ -216,7 +216,7 @@ http://localhost:5173
 🔗 Related Backend Project
 This frontend consumes the AuctionHub backend API built with ASP.NET Core.
 
-Backend repository (example):
+Backend repository:
 https://github.com/Qian1507/AuctionHub_backend
 
 
