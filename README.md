@@ -12,16 +12,12 @@ It provides a seamless UI for browsing auctions, placing bids, managing your own
 
 ## 🖼️ Project Preview
 
-
-
 ### User Authentication
-
 <p align="center">
   <img src="Login.png" width="500" alt="Login Screen">
 </p>
 
 ### Main Dashboard
-
 <p align="center">
   <img src="acution.png" width="900" alt="Main Dashboard">
 </p>
@@ -43,69 +39,70 @@ It provides a seamless UI for browsing auctions, placing bids, managing your own
 
 ```text
 src/
-  api/
-    axiosInstance.ts        # Axios instance with baseURL & JWT interceptor
+├── 🌐 api/
+│   └── axiosInstance.ts      # Axios instance with baseURL & JWT interceptor
+├── 🎨 assets/
+│   └── ...                   # Static assets (e.g. logos)
+├── 🧱 components/
+│   └── 🔨 auction/
+│       ├── Navbar.tsx
+│       ├── RequireAdmin.tsx
+│       └── UpdatePasswordForm.tsx
+├── 🧠 contexts/
+│   ├── AuthContext.tsx
+│   ├── AuthProvider.tsx
+│   └── useAuth.ts
+├── 📄 pages/
+│   ├── AdminDashboard.tsx
+│   ├── AuctionCreate.tsx
+│   ├── AuctionDetail.tsx
+│   ├── AuctionEdit.tsx
+│   ├── AuctionList.tsx
+│   ├── Login.tsx
+│   ├── MyAuctions.tsx
+│   ├── Register.tsx
+│   └── UpdatePassword.tsx
+├── 🛠️ services/
+│   ├── auctionService.ts     # Auction-related API calls
+│   ├── authService.ts        # Login / register flow
+│   └── userService.ts        # User profile & password management
+├── 🏷️ types/
+│   └── Types.ts              # Shared DTO interfaces (mirrored from backend)
+├── ⚙️ utils/
+│   ├── errorUtils.ts         # Centralized Axios error handling
+│   └── TokenHandler.ts       # JWT storage (Read/Write) logic
+├── 💅 App.css                # Global styles
+└── 🔗 App.tsx                # Main routing and layout configuration
 
-  assets/
-    ...                     # Static assets (e.g. logos)
-
-  components/
-    auction/
-      Navbar.tsx
-      RequireAdmin.tsx
-      UpdatePasswordForm.tsx
-
-  contexts/
-    AuthContext.tsx
-    AuthProvider.tsx
-    useAuth.ts
-
-  pages/
-    AdminDashboard.tsx
-    AuctionCreate.tsx
-    AuctionDetail.tsx
-    AuctionEdit.tsx
-    AuctionList.tsx
-    Login.tsx
-    MyAuctions.tsx
-    Register.tsx
-    UpdatePassword.tsx
-
-  services/
-    auctionService.ts       # Auction-related API calls
-    authService.ts          # Login / register
-    userService.ts          # Update password, user info
-
-  types/
-    Types.ts                # Shared DTO interfaces (mirrored from backend)
-
-  utils/
-    errorUtils.ts           # getErrorMessage for Axios errors
-    TokenHandler.ts         # Read/write JWT token from storage
-
-  App.css
-  App.tsx                   # Main routing and layout
+```
+---
 
 
 
 ## ✨ Key Features
 
 ### 👤 User Experience
-* **Instant Onboarding**: Automatic login immediately after a successful registration using the same credentials.
+* **Instant Onboarding**: Automatic login immediately after a successful registration.
 * **Auction Tracking**: "My Auctions" page with live status badges (`Live`, `Expired`, `Disabled`).
 * **Intuitive Feedback**: 
     * Friendly empty states: *"You haven't created any auctions yet."*
     * In-app password updates with real-time verification via `UpdatePasswordForm`.
+
+---
 
 ### ⚖️ Bidding System
 * **Smart Validation**: Server-side logic ensures all bids exceed the starting price/current highest bid and prevents self-bidding.
 * **Detailed Insights**: `AuctionDetail` pages feature full bid history, current high bid, and live status updates.
 * **Unified Error Handling**: Clear feedback for low bids or closed auctions using a centralized `getErrorMessage` utility.
 
+---
+
 ### 🛡️ Administrative & Security
 * **Admin Hub**: Dedicated dashboard (`AdminDashboard.tsx`) for global auction oversight and management.
 * **RBAC Protection**: Granular route guarding using `<RequireAdmin>` and `<RequireAuth>`.
 * **Secure Access**: Strictly enforces "Admin-only" or "Authenticated-only" access to sensitive routes.
+
+---
 
 ### 📱 Responsive Design
 * **Desktop**: High-density multi-column grids for auction cards and admin tables.
@@ -120,21 +117,22 @@ We use a modular service layer to keep the UI components clean and focused.
 
 | Service | Responsibility | Key Methods |
 | :--- | :--- | :--- |
-| **`auctionService`** | Listing & Bidding | `getAuctions`, `placeBid`, `createAuction`, `updateAuction` |
-| **`authService`** | Identity Management | `login`, `register` (with automated post-reg handshake) |
-| **`userService`** | Profile Settings | `updatePassword` (PATCH via `/users/update`) |
+| **`auctionService`** | Listing & Bidding | `getAuctions`, `placeBid`, `createAuction` |
+| **`authService`** | Identity Management | `login`, `register` |
+| **`userService`** | Profile Settings | `updatePassword` |
 
-### 🔐 Authentication Flow & Utilities
-<details>
-<summary><b>🔍 View implementation details (Axios, JWT, Error Utils)</b></summary>
 
-#### **1. JWT Management**
-On login, `authService.login` receives `{ token, user }`. The `AuthProvider` then syncs this to React state and `localStorage`.
+## 🔐 Authentication Flow & Utilities
+<details> <summary><b>🔍 View implementation details (Axios, JWT, Error Handling)</b></summary>
+1️⃣ JWT Handling
 
-#### **2. Global Axios Interceptor**
-`axiosInstance` (via `TokenHandler.ts`) automatically attaches the Bearer token to all outgoing requests:
+Upon successful login, authService.login returns an object containing { token, user }.
+The AuthProvider then synchronizes this data with both React state and localStorage, ensuring persistence across sessions.
 
-```ts
+2️⃣ Global Axios Interceptor
+
+A centralized axiosInstance (configured in TokenHandler.ts) automatically attaches the JWT token to all outgoing requests:
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "https://localhost:5001/api",
 });
@@ -147,73 +145,106 @@ axiosInstance.interceptors.request.use(config => {
   return config;
 });
 
+This ensures that all API calls are authenticated without requiring manual token handling in each request.
 
-3. Error Normalization
-getErrorMessage extracts readable strings from complex Axios error objects, supporting both plain string responses and { message: string } structures.
+3️⃣ Error Handling & Normalization
+
+The getErrorMessage utility extracts user-friendly error messages from Axios responses.
+It supports multiple response formats, including:
+
+Plain string responses
+
+Structured objects like { message: string }
+
+This provides consistent and readable error handling across the application.
 
 </details>
 
+---
 
 
+## 🚀 Getting Started
 
-🚀 Getting Started
-1️⃣ Install Dependencies
-bash
+Follow these steps to run the project locally:
+
+### 1️⃣ Install Dependencies
+```bash
 npm install
+```
 
-2️⃣ Configure Environment
-Create a .env file in the project root:
+### 2️⃣ Configure Environment
 
-bash
+Create a `.env` file in the project root and add:
+
+```bash
 VITE_API_BASE_URL=https://localhost:5001/api
-Make sure the backend is running and the URL matches this value.
+```
 
-3️⃣ Run Development Server
-bash
+Make sure the backend is running and that the URL matches the API endpoint.
+
+### 3️⃣ Run Development Server
+```bash
 npm run dev
+```
 
-The app will typically run at:
+The application will typically be available at:  
+http://localhost:5173  
 
-http://localhost:5173
+---
 
-🔗 Related Backend Project
-This frontend consumes the AuctionHub backend API built with ASP.NET Core.
+## 🔗 Related Backend Project
 
-Backend repository:
+This frontend application consumes the AuctionHub backend API built with ASP.NET Core.
+
+Backend repository:  
 https://github.com/Qian1507/AuctionHub_backend
 
+---
 
-🌟 Design Highlights
-Clear separation of concerns
+## 🌟 Design Highlights
 
-API calls live in services/ and api/axiosInstance.ts.
+### 🔹 Clear Separation of Concerns
+- API calls are organized in `services/` and `api/axiosInstance.ts`.
+- Authentication logic is centralized in `AuthContext` / `AuthProvider` and accessed via `useAuth()`.
 
-Authentication logic is centralized in AuthContext / AuthProvider and accessed via useAuth().
+---
 
-Typed end‑to‑end with DTOs
+### 🔹 Typed End-to-End with DTOs
+- Shared TypeScript interfaces in `types/Types.ts` match backend DTOs.
+- This reduces bugs caused by mismatched data structures.
 
-Shared TypeScript interfaces in types/Types.ts match backend DTOs, reducing bugs caused by mismatched shapes.
+---
 
-Reusable forms & UI
+### 🔹 Reusable Forms & UI
+- Auction creation and editing share common logic and layout.
+- `UpdatePasswordForm` encapsulates the password change workflow and can be reused across different pages.
 
-Auction creation and editing share common logic and layout.
+---
 
-UpdatePasswordForm encapsulates the password change workflow and can be reused on different pages.
+### 🔹 Robust Loading / Error / Empty States
+- Pages like **MyAuctions** clearly distinguish between:
+  - Loading
+  - Error
+  - Empty state ("no data")
+- This provides immediate and clear feedback to users.
 
-Robust loading / error / empty states
+---
 
-Pages like MyAuctions clearly distinguish between loading, error, and “no data” states, giving users immediate feedback.
+### 🔹 Unified Error Handling
+- `getErrorMessage` converts Axios errors into user-friendly messages.
+- Ensures consistent error display across the application.
 
-Unified error handling
+---
 
-getErrorMessage converts Axios errors into user‑friendly strings, so all pages display consistent messages.
+### 🔹 JWT-Aware Routing
+- Protected routes (auth-only and admin-only) are handled via:
+  - `RequireAuth`
+  - `RequireAdmin`
+- These components read authentication state from `AuthContext`.
 
-JWT‑aware routing
 
-Auth‑only and admin‑only routes are enforced using RequireAuth / RequireAdmin, reading state from AuthContext.
+## 📄 License
 
-
-📄 License
-MIT License
+This project is licensed under the MIT License.
 
 Developed with ❤️ by Qian Li
