@@ -88,67 +88,53 @@ src/
 
 
 
-✨ Key Features
-👤 User Experience
-Registration followed by automatic login using the same credentials.
+## ✨ Key Features
 
-My Auctions page with clear status badges (Live, Expired, Disabled).
+### 👤 User Experience
+* **Instant Onboarding**: Automatic login immediately after a successful registration using the same credentials.
+* **Auction Tracking**: "My Auctions" page with live status badges (`Live`, `Expired`, `Disabled`).
+* **Intuitive Feedback**: 
+    * Friendly empty states: *"You haven't created any auctions yet."*
+    * In-app password updates with real-time verification via `UpdatePasswordForm`.
 
-Friendly empty state when you have no auctions yet:
-“You haven't created any auctions yet.”
+### ⚖️ Bidding System
+* **Smart Validation**: Server-side logic ensures all bids exceed the starting price/current highest bid and prevents self-bidding.
+* **Detailed Insights**: `AuctionDetail` pages feature full bid history, current high bid, and live status updates.
+* **Unified Error Handling**: Clear feedback for low bids or closed auctions using a centralized `getErrorMessage` utility.
 
-In‑app password update with current‑password verification via UpdatePasswordForm.
+### 🛡️ Administrative & Security
+* **Admin Hub**: Dedicated dashboard (`AdminDashboard.tsx`) for global auction oversight and management.
+* **RBAC Protection**: Granular route guarding using `<RequireAdmin>` and `<RequireAuth>`.
+* **Secure Access**: Strictly enforces "Admin-only" or "Authenticated-only" access to sensitive routes.
 
-⚖️ Bidding System
-Server‑side validation for all bids (must be higher than starting price / current highest bid, auction must be open, user cannot bid on own auction).
+### 📱 Responsive Design
+* **Desktop**: High-density multi-column grids for auction cards and admin tables.
+* **Mobile**: Fluid single-column layouts with stacked sections and adaptive navigation.
 
-AuctionDetail page shows full auction information, current highest bid, and bid history.
+---
 
-Clear error feedback if a bid is too low, the auction is closed, or the user tries to bid on their own auction (messages come from backend and are displayed via getErrorMessage).
+## 🛠️ Technical Architecture
 
-🛡️ Administrative Control
-Admin Dashboard (AdminDashboard.tsx) for admin‑only operations (e.g. viewing and disabling auctions).
+### 🌐 API Services Strategy
+We use a modular service layer to keep the UI components clean and focused.
 
-Route protection using <RequireAdmin> (and optionally <RequireAuth>):
+| Service | Responsibility | Key Methods |
+| :--- | :--- | :--- |
+| **`auctionService`** | Listing & Bidding | `getAuctions`, `placeBid`, `createAuction`, `updateAuction` |
+| **`authService`** | Identity Management | `login`, `register` (with automated post-reg handshake) |
+| **`userService`** | Profile Settings | `updatePassword` (PATCH via `/users/update`) |
 
-Only authenticated users can access protected pages.
+### 🔐 Authentication Flow & Utilities
+<details>
+<summary><b>🔍 View implementation details (Axios, JWT, Error Utils)</b></summary>
 
-Only users with role === "Admin" can access admin routes.
+#### **1. JWT Management**
+On login, `authService.login` receives `{ token, user }`. The `AuthProvider` then syncs this to React state and `localStorage`.
 
-📱 Responsive Design
-Desktop: multi‑column grids for auction cards and admin overviews.
+#### **2. Global Axios Interceptor**
+`axiosInstance` (via `TokenHandler.ts`) automatically attaches the Bearer token to all outgoing requests:
 
-Mobile: single‑column layout with stacked sections for comfortable reading and interaction.
-
-Navbar designed to adapt to different screen sizes (you can extend it with a hamburger menu if needed).
-
-🔐 Authentication Flow
-On login, authService.login sends credentials to the backend and receives { token, user }.
-
-AuthProvider calls login(token, user) to:
-
-store them in React state and localStorage,
-
-update isAuthenticated.
-
-axiosInstance reads the token (via TokenHandler.ts) and attaches
-Authorization: Bearer <token> to all outgoing API requests.
-
-On register, the app:
-
-Calls authService.register.
-
-Uses the same email/password to call the login API.
-
-Calls AuthContext.login(...).
-
-Redirects to /my-auctions.
-
-🧩 Services & Utilities
-axiosInstance
-Centralized Axios configuration:
-
-ts
+```ts
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "https://localhost:5001/api",
 });
@@ -156,42 +142,19 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(config => {
   const token = getToken();
   if (token) {
-    config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
-auctionService
-Encapsulates all auction‑related API calls, for example:
 
-getAuctions() – list auctions
 
-getAuctionById(id) – fetch auction detail
+3. Error Normalization
+getErrorMessage extracts readable strings from complex Axios error objects, supporting both plain string responses and { message: string } structures.
 
-createAuction(dto) – create a new auction
+</details>
 
-updateAuction(id, dto) – edit auction
 
-getMyAuctions() – current user’s auctions
 
-placeBid(auctionId, amount) – place a bid
-
-authService
-login(loginDto) – returns { token, user }
-
-register(registerDto) – registers a new user (then frontend auto‑logs in)
-
-userService
-updatePassword(dto) – calls backend PATCH /users/update to change the logged‑in user’s password.
-
-errorUtils
-getErrorMessage(err, defaultMessage) extracts a readable message from Axios errors:
-
-Supports plain string responses and { message: string } shapes.
-
-Falls back to defaultMessage when nothing useful is available.
-
-Pages like AuctionDetail, MyAuctions, and UpdatePassword use it in catch blocks to show consistent error messages.
 
 🚀 Getting Started
 1️⃣ Install Dependencies
