@@ -40,40 +40,42 @@ It provides a seamless UI for browsing auctions, placing bids, managing your own
 ```text
 src/
 ├── 🌐 api/
-│   └── axiosInstance.ts      # Axios instance with baseURL & JWT interceptor
+│   └── axiosInstance.ts      # Axios instance with baseURL and request/response interceptors
 ├── 🎨 assets/
-│   └── ...                   # Static assets (e.g. logos)
+│   └── react.svg             # Static assets (images, icons, etc.)
 ├── 🧱 components/
-│   └── 🔨 auction/
-│       ├── Navbar.tsx
-│       ├── RequireAdmin.tsx
-│       └── UpdatePasswordForm.tsx
+│   ├── 🔨 auction/           # Auction-specific UI components
+│   │   ├── AuctionBidHistory.tsx
+│   │   ├── AuctionCard.tsx
+│   │   └── AuctionForm.tsx
+│   ├── Navbar.tsx            # Global navigation bar
+│   ├── RequireAdmin.tsx      # Route guard for admin-only access
+│   └── UpdatePasswordForm.tsx# Reusable password update form
 ├── 🧠 contexts/
-│   ├── AuthContext.tsx
-│   ├── AuthProvider.tsx
-│   └── useAuth.ts
+│   ├── AuthContext.ts        # Authentication context definition
+│   ├── AuthProvider.tsx      # Authentication state provider
+│   └── useAuth.ts            # Custom hook for accessing auth context
 ├── 📄 pages/
-│   ├── AdminDashboard.tsx
-│   ├── AuctionCreate.tsx
-│   ├── AuctionDetail.tsx
-│   ├── AuctionEdit.tsx
-│   ├── AuctionList.tsx
-│   ├── Login.tsx
-│   ├── MyAuctions.tsx
-│   ├── Register.tsx
-│   └── UpdatePassword.tsx
+│   ├── AdminDashboard.tsx    # Admin management panel
+│   ├── AuctionCreate.tsx     # Create new auction page
+│   ├── AuctionDetail.tsx     # Auction item details view
+│   ├── AuctionEdit.tsx       # Edit existing auction page
+│   ├── AuctionList.tsx       # Main auction gallery/home page
+│   ├── Login.tsx             # User login page
+│   ├── MyAuctions.tsx        # User's personal auction management
+│   ├── Register.tsx          # User registration page
+│   └── UpdatePassword.tsx    # Password management page
 ├── 🛠️ services/
-│   ├── auctionService.ts     # Auction-related API calls
-│   ├── authService.ts        # Login / register flow
-│   └── userService.ts        # User profile & password management
+│   ├── auctionService.ts     # Auction-related API service layer
+│   ├── authService.ts        # Authentication & Authorization API calls
+│   └── userService.ts        # User profile & account management services
 ├── 🏷️ types/
-│   └── Types.ts              # Shared DTO interfaces (mirrored from backend)
+│   └── Types.ts              # Global TypeScript interfaces and DTOs
 ├── ⚙️ utils/
-│   ├── errorUtils.ts         # Centralized Axios error handling
-│   └── TokenHandler.ts       # JWT storage (Read/Write) logic
-├── 💅 App.css                # Global styles
-└── 🔗 App.tsx                # Main routing and layout configuration
-
+│   ├── errorUtils.ts         # Centralized error handling logic
+│   └── TokenHandler.ts       # JWT storage and retrieval management
+├── 💅 App.css                # Global styles and CSS variables
+└── 🔗 App.tsx                # Root component & routing configuration
 ```
 ---
 
