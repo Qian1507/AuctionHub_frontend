@@ -9,6 +9,15 @@ AuctionHub Frontend is a high‑performance **React + TypeScript** single‑page
 It provides a seamless UI for browsing auctions, placing bids, managing your own listings, and performing admin operations.
 
 ---
+## 🔗 Related Backend Project
+
+This frontend application consumes the AuctionHub backend API built with ASP.NET Core.
+
+Backend repository:  
+https://github.com/Qian1507/AuctionHub_backend
+
+---
+
 
 ## 🖼️ Project Preview
 
@@ -194,14 +203,7 @@ http://localhost:5173
 
 ---
 
-## 🔗 Related Backend Project
 
-This frontend application consumes the AuctionHub backend API built with ASP.NET Core.
-
-Backend repository:  
-https://github.com/Qian1507/AuctionHub_backend
-
----
 
 ## 🌟 Design Highlights
 
